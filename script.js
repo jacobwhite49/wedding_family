@@ -4,7 +4,7 @@ var map = new mapboxgl.Map({
     style: 'mapbox://styles/mapbox/satellite-streets-v9',
     zoom: 6,
     center: [-112.622088, 33.878781],
-    hash: true
+    hash: true,
 });
 var geocoder = new MapboxGeocoder({
     accessToken: mapboxgl.accessToken,
@@ -41,17 +41,51 @@ map.on('load', function () {
         type: "vector",
         url: 'mapbox://jnb2387.8x9mbpt0'
     });
+    map.addSource('fairfield', {
+        type: "vector",
+        url: 'mapbox://jnb2387.2kbah4qv'
+    });
+    
     map.addLayer({
         "id": "cablevision_coax",
         "type": "line",
         "source":"cablevision_coax",
         "source-layer": "cablevision_coax",
+        "layout":{
+
+            "visibility":"none"
+        },
         "paint": {
             
             "line-color": "blue",
             "line-width": {"stops": [[9, 1], [13, 2], [19, 10]]}
         }
     }, "road-label-medium");
+    
+    map.addLayer({
+        "id": "fairfield_outline",
+        "type": "line",
+        "source": "fairfield",
+        "source-layer": "fairfield-2vywro",
+        "minzoom": 14,
+        "paint": {
+            "line-opacity": 1,
+            "line-color": "blue",
+            "line-width": {"stops": [[13, 1], [17 ,4]]}
+        }
+    }, "road-label-small");
+    map.addLayer({
+        "id": "matched_blocks_outline",
+        "type": "line",
+        "source": "matched",
+        "source-layer": "matched",
+        "minzoom": 5,
+        "paint": {
+            "line-opacity": 1,
+            "line-color": "red",
+            "line-width": {"stops": [[5, 0.5], [10, 1], [14, 4]]}
+        }
+    }, "road-label-small");
 
     map.addLayer({
         "id": "matched_blocks",
@@ -60,8 +94,8 @@ map.on('load', function () {
         "source-layer": "matched",
         "paint": {
             "fill-opacity": 0.5,
-            "fill-color": "red",
-            "fill-outline-color": "white"
+            "fill-color": "lightblue",
+            "fill-outline-color": "red"
         }
     }, "road-label-small");
     map.addLayer({
@@ -72,11 +106,33 @@ map.on('load', function () {
         "minzoom": 14.5,
         'layout': {
             'text-field': '{census_blk}',
-            'text-size': 12//{"stops": [[14, 12], [16, 11], [19, 10]]},
+            'text-size': {"stops": [[14.5, 13], [16, 15], [19, 17]]}
+
         },
         'paint': {
-            'text-color': 'lightblue',
+            'text-color': 'white',
             'text-halo-color': 'black',
+            'text-halo-width': 1.5
+        }
+    });
+    map.addLayer({
+        'id': 'fairfield_label',
+        'type': 'symbol',
+        'source': 'fairfield',
+        "source-layer": "fairfield-2vywro",
+        "minzoom": 17,
+        'layout': {
+            'text-field': '{ADDRESS}',
+            'text-size': {"stops": [[15, 10], [19, 16]]},
+            "symbol-spacing": 500000,
+            "text-font": ["Open Sans Regular"],
+            "text-anchor": "center",
+			"text-justify": "center"
+
+        },
+        'paint': {
+            'text-color': 'white',
+            'text-halo-color': 'blue',
             'text-halo-width': 1.5
         }
     });
@@ -94,16 +150,38 @@ map.on('load', function () {
             },
             "filter": ["==", "census_blk", ""]
         },'matched_label');
+        map.addLayer(
+            {
+                id: "fairfield-highlighted",
+                type: "fill",
+                source: "fairfield",
+                "source-layer": "fairfield-2vywro",
+                paint: {
+                    "fill-outline-color": "white",
+                    "fill-color": "yellow",
+                    "fill-opacity": 0.75
+                },
+                "filter": ["==", "OBJECTID", ""]
+            },'fairfield_label');
     map.on('click', function (e) {
         var features =  map.queryRenderedFeatures(e.point)
         console.log('Layer Name:', features[0].layer.id)
         console.log('Layer Properties:', features[0].properties)
 
-        
-                 map.setFilter('blocks-highlighted', ['==', 'census_blk', features[0].properties.census_blk]);
-           
-                // map.setFilter('block-hightlighted', ['==', 'matched', ''])
-            
+                switch(features[0].layer.id){
+                    case 'matched_blocks':
+                    map.setFilter('blocks-highlighted', ['==', 'census_blk', features[0].properties.census_blk]);
+                    break;
+                    case 'fairfield':
+                    map.setFilter('fairfield-highlighted', ['==', 'OBJECTID', features[0].properties.OBJECTID])
+                    break;
+                    case 'fairfield_label':
+                    map.setFilter('fairfield-highlighted', ['==', 'OBJECTID', features[0].properties.OBJECTID])
+                    break;
+                    case 'matched_label':
+                    map.setFilter('blocks-highlighted', ['==', 'census_blk', features[0].properties.census_blk]);
+                    break;
+                }
         });
 
     // var features = map.queryRenderedFeatures(e.point,{layers: ['matched']});
