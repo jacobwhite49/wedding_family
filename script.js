@@ -1,21 +1,37 @@
-mapboxgl.accessToken = 'pk.eyJ1Ijoiam5iMjM4NyIsImEiOiJjamR1ZncxYTQxMmN6MnB0M3hlbGtpcWpqIn0.QHBFO03TkZPynELO1IHmyA';
+mapboxgl.accessToken = 'pk.eyJ1Ijoiam5iMjM4NyIsImEiOiJjajcxOWNrZzEwNGhoMnFwMXk1aGZvbzJqIn0.2icKvjSsijDAwqlJA1a54Q';
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/satellite-streets-v9',
     zoom: 6,
-    center: [-112.622088, 33.878781],
+    center: [-76.249, 42.958],
     hash: true,
 });
-var geocoder = new MapboxGeocoder({
-    accessToken: mapboxgl.accessToken,
-    zoom: 17
-});
-
-map.addControl(geocoder);
 map.addControl(new mapboxgl.NavigationControl());
 
+var geocoder = new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    bbox: [-80.0744,40.3977,-72.4389,44.9656],
+});
+document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
+
+var coords;
+var popup; // SO WE CAN GRAB THE POPUP FROM ANYWHERE
+//map.addControl(geocoder);
+
+map.on('load', updateGeocoderProximity); // set proximity on map load
+map.on('moveend', updateGeocoderProximity); // and then update proximity each time the map moves
+
+function updateGeocoderProximity() {
+    if (map.getZoom() > 9) {
+        var center = map.getCenter().wrap(); // ensures the longitude falls within -180 to 180 as the Geocoding API doesn't accept values outside this range
+        geocoder.setProximity({ longitude: center.lng, latitude: center.lat });
+    } else {
+        geocoder.setProximity(null);
+    }
+}
+
 map.on('load', function () {
-    //=====GEOCODER POINT
+    // //=====GEOCODER POINT
     map.addSource('single-point', {
         "type": "geojson",
         "data": {
@@ -24,106 +40,51 @@ map.on('load', function () {
         }
     });
     map.addLayer({
-        "id": "point",
+        "id": "geocodepoint",
         "source": "single-point",
         "type": "circle",
         "paint": {
-            "circle-radius": 10,
-            "circle-color": "#007cbf"
+            "circle-radius": 12,
+            "circle-color": "gold"
         }
     });
-    //======GEOCODER POINT
-    map.addSource('cablevision_coax', {
+    geocoder.on('result', function (ev) {
+        popup.remove() //REMOVE ANY POPUPS ON MAP
+        console.log(ev.result)
+        map.getSource('single-point').setData(ev.result.geometry);
+    });
+ 
+//all addresses
+    map.addSource('point', {
         type: "vector",
-        url: 'mapbox://jnb2387.0a6ze63c'
+        url: 'mapbox://jnb2387.3ti6zrnx'
     });
-    map.addSource('matched', {
-        type: "vector",
-        url: 'mapbox://jnb2387.8x9mbpt0'
-    });
-    map.addSource('fairfield', {
-        type: "vector",
-        url: 'mapbox://jnb2387.2kbah4qv'
-    });
-    
     map.addLayer({
-        "id": "cablevision_coax",
-        "type": "line",
-        "source":"cablevision_coax",
-        "source-layer": "cablevision_coax",
-        "layout":{
-
-            "visibility":"none"
-        },
-        "paint": {
-            
-            "line-color": "blue",
-            "line-width": {"stops": [[9, 1], [13, 2], [19, 10]]}
-        }
-    }, "road-label-medium");
-    
-    map.addLayer({
-        "id": "fairfield_outline",
-        "type": "line",
-        "source": "fairfield",
-        "source-layer": "fairfield-2vywro",
-        "minzoom": 14,
-        "paint": {
-            "line-opacity": 1,
-            "line-color": "blue",
-            "line-width": {"stops": [[13, 1], [17 ,4]]}
-        }
-    }, "road-label-small");
-    map.addLayer({
-        "id": "matched_blocks_outline",
-        "type": "line",
-        "source": "matched",
-        "source-layer": "matched",
-        "minzoom": 5,
-        "paint": {
-            "line-opacity": 1,
-            "line-color": "red",
-            "line-width": {"stops": [[5, 0.5], [10, 1], [14, 4]]}
-        }
-    }, "road-label-small");
-
-    map.addLayer({
-        "id": "matched_blocks",
-        "type": "fill",
-        "source": "matched",
-        "source-layer": "matched",
-        "paint": {
-            "fill-opacity": 0.5,
-            "fill-color": "lightblue",
-            "fill-outline-color": "red"
-        }
-    }, "road-label-small");
-    map.addLayer({
-        'id': 'matched_label',
-        'type': 'symbol',
-        'source': 'matched',
-        "source-layer": "matched",
-        "minzoom": 14.5,
-        'layout': {
-            'text-field': '{census_blk}',
-            'text-size': {"stops": [[14.5, 13], [16, 15], [19, 17]]}
-
-        },
+        'id': 'All_addresses',
+        'type': 'circle',
+        'source':'point',
+        'source-layer': 'output',
         'paint': {
-            'text-color': 'white',
-            'text-halo-color': 'black',
-            'text-halo-width': 1.5
+            // make circles larger as the user zooms from z12 to z22
+            'circle-radius': {
+                'base': 1,
+                'stops': [[13, 1], [22, 8]]
+            },
+            // color circles by ethnicity, using a match expression
+            // https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-match
+            'circle-color': 'yellow'
         }
-    });
+    },'place-suburb');
+
     map.addLayer({
-        'id': 'fairfield_label',
+        'id': 'All_addresses_label',
         'type': 'symbol',
-        'source': 'fairfield',
-        "source-layer": "fairfield-2vywro",
-        "minzoom": 17,
+        'source': 'point',
+        "source-layer": "output",
+        "minzoom": 16,
         'layout': {
-            'text-field': '{ADDRESS}',
-            'text-size': {"stops": [[15, 10], [19, 16]]},
+            'text-field': '{STREETNUM} {STREETNAME} {CITY} {STATE}',
+            'text-size': 15,
             "symbol-spacing": 500000,
             "text-font": ["Open Sans Regular"],
             "text-anchor": "center",
@@ -132,70 +93,184 @@ map.on('load', function () {
         },
         'paint': {
             'text-color': 'white',
-            'text-halo-color': 'blue',
+            'text-halo-color': 'black',
             'text-halo-width': 1.5
         }
     });
 
-    map.addLayer(
-        {
-            id: "blocks-highlighted",
-            type: "fill",
-            source: "matched",
-            "source-layer": "matched",
-            paint: {
-                "fill-outline-color": "white",
-                "fill-color": "yellow",
-                "fill-opacity": 0.75
-            },
-            "filter": ["==", "census_blk", ""]
-        },'matched_label');
-        map.addLayer(
-            {
-                id: "fairfield-highlighted",
-                type: "fill",
-                source: "fairfield",
-                "source-layer": "fairfield-2vywro",
-                paint: {
-                    "fill-outline-color": "white",
-                    "fill-color": "yellow",
-                    "fill-opacity": 0.75
-                },
-                "filter": ["==", "OBJECTID", ""]
-            },'fairfield_label');
-    map.on('click', function (e) {
-        var features =  map.queryRenderedFeatures(e.point)
-        console.log('Layer Name:', features[0].layer.id)
-        console.log('Layer Properties:', features[0].properties)
-
-                switch(features[0].layer.id){
-                    case 'matched_blocks':
-                    map.setFilter('blocks-highlighted', ['==', 'census_blk', features[0].properties.census_blk]);
-                    break;
-                    case 'fairfield':
-                    map.setFilter('fairfield-highlighted', ['==', 'OBJECTID', features[0].properties.OBJECTID])
-                    break;
-                    case 'fairfield_label':
-                    map.setFilter('fairfield-highlighted', ['==', 'OBJECTID', features[0].properties.OBJECTID])
-                    break;
-                    case 'matched_label':
-                    map.setFilter('blocks-highlighted', ['==', 'census_blk', features[0].properties.census_blk]);
-                    break;
-                }
-        });
-
-    // var features = map.queryRenderedFeatures(e.point,{layers: ['matched']});
-
-    // console.log('Layer id: ', features[0].layer.id)
-    // console.log("layer properties: " , features[0].properties)
-
-    // });
-    geocoder.on('result', function (ev) {
-        map.getSource('single-point').setData(ev.result.geometry);
+    //all county
+    map.addSource('allnypoint', {
+        type: "vector",
+        url: 'mapbox://jnb2387.82b0jp46'
     });
-});
+    map.addLayer({
+        'id': 'NY_Addresses',
+        'type': 'circle',
+        'source':'allnypoint',
+        'source-layer': 'ny_ogr',
+        'paint': {
+            // make circles larger as the user zooms from z12 to z22
+            'circle-radius': {
+                'base': 1,
+                'stops': [[13, 1], [22, 8]]
+            },
+            'circle-color': 'blue'
+        }
+    },'place-suburb');
 
-var toggleableLayerIds = [ 'matched_blocks', 'cablevision_coax', 'blocks-highlighted', 'matched_label' ];
+    map.addLayer({
+        'id': 'NY_Addresses_label',
+        'type': 'symbol',
+        'source': 'allnypoint',
+        "source-layer": "ny_ogr",
+        "minzoom": 16,
+        'layout': {
+            'text-field': '{PARCEL_ADDR}',
+            'text-size': 15,
+            "symbol-spacing": 500000,
+            "text-font": ["Open Sans Regular"],
+            "text-anchor": "center",
+            "text-justify": "center"
+
+        },
+        'paint': {
+            'text-color': 'white',
+            'text-halo-color': 'black',
+            'text-halo-width': 1.5
+        }
+    });
+
+
+    // County Tile layer
+    map.addSource('county', {
+        "type": "vector",
+        "url": 'mapbox://jnb2387.65a0agqb'
+        
+    });
+    map.addLayer({
+        "id": "county",
+        'type': 'fill',
+        "source":'county',
+        'source-layer': 'countywgs84-2qsg7w',
+        // 'minzoom':14,
+        "layout": {
+            'visibility': 'none',
+        },
+        "paint": {
+            'fill-color': 'red',
+            'fill-opacity':0.5,
+            'fill-outline-color': 'white'
+        }
+    },'place-suburb');
+    map.addLayer({
+        'id': 'countylabel',
+        'type': 'symbol',
+        'source': 'county',
+        "source-layer": "countywgs84-2qsg7w",
+         "minzoom": 7,
+        'layout': {
+            'text-field': '{NAME} County',
+            'text-size': 18,
+            "symbol-spacing": 500000,
+            "text-font": ["Open Sans Regular"],
+            //"text-anchor": "center",
+            //"text-justify": "center",
+            'visibility': 'none'
+        },
+        'paint': {
+            'text-color': 'black',
+            'text-halo-color': 'red',
+            'text-halo-width': 1.5
+        }
+    },'place-suburb');
+
+       // ZipCode Tile layer
+       map.addSource('zip', {
+        "type": "vector",
+        "url": 'mapbox://jnb2387.ct82c8j8'
+        
+    });
+     // ZipCode label Tile layer
+    map.addLayer({
+        'id': 'ziplabel',
+        'type': 'symbol',
+        'source': 'zip',
+        "source-layer": "ny_zips-4vg7jg",
+         "minzoom": 7,
+        'layout': {
+            'text-field': '{zip_code}',
+            'text-size': 15,
+            "symbol-spacing": 500000,
+            "text-font": ["Open Sans Regular"],
+            "text-anchor": "center",
+            "text-justify": "center",
+            'visibility': 'none'
+        },
+        'paint': {
+            'text-color': 'white',
+            'text-halo-color': 'blue',
+            'text-halo-width': 1.5
+        }
+    });
+    map.addLayer({
+        "id": "NY_ZIPCODES",
+        "type": "line",
+        "source": 'zip',
+        'source-layer': 'ny_zips-4vg7jg',
+        "layout": {
+            "line-join": "round",
+            "line-cap": "round",
+            'visibility': 'none'
+
+        },
+        "paint": {
+            "line-color": "blue",
+            "line-width": 2
+        }
+    },'place-suburb');
+
+
+
+    map.on('click', 'county', function (e) {
+        var coordinates = e.features[0].geometry.coordinates;
+        var description = e.features[0].properties.NAME;
+        new mapboxgl.Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(description)
+            .addTo(map);
+    });
+    
+
+    map.on('click', function(e){
+        if (map.getZoom() > 10) {
+           
+            popup= new mapboxgl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(e.lngLat.lng +" <button id='lng'>Copy</button><br>"+e.lngLat.lat +" <button id='lat'>Copy</button>")//+"<br>"+e.lngLat.lat +" <button id='lat' onclick="+copyToClipboard(e.lngLat.lat)+">Copy</button>") 
+                .addTo(map);
+                $(document).on('click', '#lng', function() {
+                    $('#lat').html("Copy")
+                    $('#lng').html("Copied")
+
+                    copyToClipboard(e.lngLat.lng)
+                })
+                $(document).on('click', '#lat', function() {
+                    $('#lng').html("Copy")
+                    $('#lat').html("Copied")
+                    copyToClipboard(e.lngLat.lat)
+                })
+                
+            }
+        });
+       
+
+ 
+
+
+});// END MAP LOAD
+
+
+var toggleableLayerIds = [ "All_addresses", 'NY_Addresses','county','NY_ZIPCODES' ];
 
 for (var i = 0; i < toggleableLayerIds.length; i++) {
     var id = toggleableLayerIds[i];
@@ -205,17 +280,49 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
     link.className = 'active';
     link.textContent = id;
 
+    //Because these two layers are not visible when first loaded
+    if(id === 'county' || id === 'NY_ZIPCODES'){
+        link.className = '';
+    }
+
+
     link.onclick = function (e) {
         var clickedLayer = this.textContent;
         e.preventDefault();
         e.stopPropagation();
 
+        
+
         var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
 
         if (visibility === 'visible') {
+            if(clickedLayer=='NY_ZIPCODES'){
+                map.setLayoutProperty('ziplabel', 'visibility', 'none')
+            }
+            if(clickedLayer=='All_addresses'){
+                map.setLayoutProperty('All_addresses_label', 'visibility', 'none')
+            }
+            if(clickedLayer=='county'){
+                map.setLayoutProperty('countylabel', 'visibility', 'none')
+            }
+            if(clickedLayer=='NY_Addresses'){
+                map.setLayoutProperty('NY_Addresses_label', 'visibility', 'none')
+            }
             map.setLayoutProperty(clickedLayer, 'visibility', 'none');
             this.className = '';
         } else {
+            if(clickedLayer=='NY_ZIPCODES'){
+                map.setLayoutProperty('ziplabel', 'visibility', 'visible')
+            }
+            if(clickedLayer=='NY_Addresses'){
+                map.setLayoutProperty('NY_Addresses_label', 'visibility', 'visible')
+            }
+            if(clickedLayer=='All_addresses'){
+                map.setLayoutProperty('All_addresses_label', 'visibility', 'visible')
+            }
+            if(clickedLayer=='county'){
+                map.setLayoutProperty('countylabel', 'visibility', 'visible')
+            }
             this.className = 'active';
             map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
         }
@@ -225,4 +332,53 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
     layers.appendChild(link);
 }
 
+
+function copyToClipboard(elementId) {
+
+    // Create a "hidden" input
+    var aux = document.createElement("input");
+  
+    // Assign it the value of the specified element
+    aux.setAttribute("value", elementId);
+  
+    // Append it to the body
+    document.body.appendChild(aux);
+    //console.log(elementId)
+
+    // Highlight its content
+    aux.select();
+  
+    // Copy the highlighted text
+    document.execCommand("copy");
+  
+    // Remove it from the body
+    document.body.removeChild(aux);
+  
+  }
+
+//   function copyToClipboard(element) {
+//     var $temp = $("<input>");
+//     $("body").append($temp);
+//     $temp.val($(element).text()).select();
+//     document.execCommand("copy");
+//     $temp.remove();
+//   }
+  
+
+
+//TRY TO USE NY GEOCODER
+
+// $("#nygeocodebtn").click(function(){
+//     var street= document.getElementById('street').value;
+//     var zip= document.getElementById('zip').value;
+
+//     $.ajax({url: 'https://gisservices.its.ny.gov/arcgis/rest/services/Locators/Street_and_Address_Composite/GeocodeServer/findAddressCandidates?Street='+street+'&City=&State=ny&ZIP='+zip+'&SingleLine=&category=&outFields=&maxLocations=&outSR=4326&searchExtent=&location=&distance=&magicKey=&f=pjson', success: function(result){  
+//     var result = JSON.parse(result);
+//         var coords = result.candidates[0].location
+//         map.flyTo({
+//            // center:[-74.55424366862445,44.803060292133765]
+//             center: [coords.x, coords.y]
+//         });
+//     }});
+// });
 
