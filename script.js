@@ -1,4 +1,4 @@
-mapboxgl.accessToken = 'pk.eyJ1Ijoiam5iMjM4NyIsImEiOiJjajcxOWNrZzEwNGhoMnFwMXk1aGZvbzJqIn0.2icKvjSsijDAwqlJA1a54Q';
+mapboxgl.accessToken = 'pk.eyJ1IjoiandoaXRlMDcwMiIsImEiOiJjamZ4MHhjMng0dXRrMnFudjQ5emI5a3I3In0.YSkfFwF8_LRPoyOum5SZdg';
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/satellite-streets-v9',
@@ -49,15 +49,17 @@ map.on('load', function () {
         }
     });
     geocoder.on('result', function (ev) {
-        popup.remove() //REMOVE ANY POPUPS ON MAP
-        console.log(ev.result)
+        if(popup){popup.remove()} //REMOVE ANY POPUPS ON MAP
+        console.log('geocode geometry',ev.result.geometry)
+        console.log('geocode ',ev.result)
+
         map.getSource('single-point').setData(ev.result.geometry);
     });
  
 //all addresses
     map.addSource('point', {
         type: "vector",
-        url: 'mapbox://jnb2387.3ti6zrnx'
+        url: 'mapbox://jwhite0702.dtcfui2h'
     });
     map.addLayer({
         'id': 'All_addresses',
@@ -73,7 +75,8 @@ map.on('load', function () {
             // color circles by ethnicity, using a match expression
             // https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-match
             'circle-color': 'yellow'
-        }
+        },
+        "filter": ["==", "STATE", 'NY']
     },'place-suburb');
 
     map.addLayer({
@@ -95,13 +98,14 @@ map.on('load', function () {
             'text-color': 'white',
             'text-halo-color': 'black',
             'text-halo-width': 1.5
-        }
+        },
+        "filter": ["==", "STATE", 'NY']
     });
 
     //all county
     map.addSource('allnypoint', {
         type: "vector",
-        url: 'mapbox://jnb2387.82b0jp46'
+        url: 'mapbox://jwhite0702.9d61t80g'
     });
     map.addLayer({
         'id': 'NY_Addresses',
@@ -141,7 +145,7 @@ map.on('load', function () {
     });
 
 
-    // County Tile layer
+    // // County Tile layer
     map.addSource('county', {
         "type": "vector",
         "url": 'mapbox://jnb2387.65a0agqb'
@@ -242,6 +246,8 @@ map.on('load', function () {
     
 
     map.on('click', function(e){
+        $('#listings').hide();
+
         if (map.getZoom() > 10) {
            
             popup= new mapboxgl.Popup()
@@ -334,36 +340,151 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
 
 
 function copyToClipboard(elementId) {
-
     // Create a "hidden" input
     var aux = document.createElement("input");
-  
     // Assign it the value of the specified element
     aux.setAttribute("value", elementId);
-  
     // Append it to the body
     document.body.appendChild(aux);
-    //console.log(elementId)
-
     // Highlight its content
     aux.select();
-  
     // Copy the highlighted text
     document.execCommand("copy");
-  
     // Remove it from the body
     document.body.removeChild(aux);
   
   }
 
-//   function copyToClipboard(element) {
-//     var $temp = $("<input>");
-//     $("body").append($temp);
-//     $temp.val($(element).text()).select();
-//     document.execCommand("copy");
-//     $temp.remove();
-//   }
-  
+
+
+
+$("#streetbtn").click(function(){
+    $('#streetbtn').html('Hold ON YO!');
+
+    if ($('#listings').is(':visible')) {
+        // $('#listings').hide()
+        $('#listings').empty()
+
+        // $('#streetbtn').html('Search')
+
+      } else {
+        $('#listings').show();
+        // $('#streetbtn').html('Close')
+
+      }
+
+    var street= document.getElementById('street').value;
+
+    $.ajax({url: 'http://nyapi.herokuapp.com/bbox/v1/{table}?address='+street, 
+    success: function(result){ 
+        $('#streetbtn').html('Search');
+
+        
+
+
+        function createPopUp(currentFeature) {
+            var popUps = document.getElementsByClassName('mapboxgl-popup');
+            // Check if there is already a popup on the map and if so, remove it
+            if (popUps[0]) popUps[0].remove();
+            var coords = [currentFeature.lon,currentFeature.lat]
+console.log(coords)
+            var popup = new mapboxgl.Popup({ closeOnClick: false })
+              .setLngLat(coords)
+              .setHTML('<h3>Clicked Address</h3>' +
+                '<h4>' + currentFeature.address + '</h4>')
+              .addTo(map);
+          }
+
+        function flyToStore(currentFeature) {
+            if(map.getSource('single-points')){
+                map.removeLayer('geocodepoints')
+                map.removeSource('single-points')
+                console.log('removed')
+            }
+            var coords = [currentFeature.lon,currentFeature.lat]
+            map.flyTo({
+                center: [coords[0],coords[1]],
+                zoom: 16.5
+              });
+              map.addSource('single-points', {
+                "type": "geojson",
+                "data": {
+                    "type": "FeatureCollection",
+                    "features": []
+                }
+            });
+            map.addLayer({
+                "id": "geocodepoints",
+                "source": "single-points",
+                "type": "circle",
+                "paint": {
+                    "circle-radius": 8,
+                    "circle-color": "gold"
+                }
+            });
+            var nypoint= {
+                "type": "Point",
+                "coordinates": coords
+              }
+        map.getSource('single-points').setData(nypoint);
+          }
+        
+        
+
+        function buildLocationList(data) {
+
+            // Iterate through the list of stores
+            for (i = 0; i < result.length; i++) {
+              var currentFeature = data[i];
+              // Shorten data.feature.properties to just `prop` so we're not
+              // writing this long form over and over again.
+              var prop = currentFeature;
+              // Select the listing container in the HTML and append a div
+              // with the class 'item' for each store
+              var listings = document.getElementById('listings');
+              var listing = listings.appendChild(document.createElement('div'));
+              listing.className = 'item';
+              listing.id = 'listing-' + i;
+          
+              // Create a new link with the class 'title' for each store
+              // and fill it with the store address
+              var link = listing.appendChild(document.createElement('a'));
+              link.href = '#';
+              link.className = 'title';
+              link.dataPosition = i;
+              link.innerHTML = prop.address;
+          
+              // Create a new div with the class 'details' for each store
+              // and fill it with the city and phone number
+             
+              link.addEventListener('click', function(e) {
+                   $('#listings').hide();
+                  // Update the currentFeature to the store associated with the clicked link
+                  var clickedListing = data[this.dataPosition];
+                  console.log(clickedListing)
+                  // 1. Fly to the point associated with the clicked link
+                  flyToStore(clickedListing);
+                  createPopUp(clickedListing);
+              
+              })
+            }
+          }
+          // Add an event listener for the links in the sidebar listing
+
+          buildLocationList(result)
+
+         
+
+        console.log(result)
+        
+ 
+    }});
+});
+
+
+
+
+
 
 
 //TRY TO USE NY GEOCODER

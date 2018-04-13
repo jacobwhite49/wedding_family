@@ -2,10 +2,7 @@ body { margin:0; padding:0; }
 #map { position:absolute; top:0; bottom:0; width:100%; }
 
 
-/* #geocoder-container > div {
-    min-width:50%;
-    margin-left:25%;
-} */
+
 .geocoder {
     position:absolute;
     z-index:1;
@@ -14,6 +11,7 @@ body { margin:0; padding:0; }
     /* margin-left:-15%; */
     top:10px;
 }
+
 /* .mapboxgl-ctrl-geocoder { min-width:100%; } */
 
 .mapboxgl-ctrl-geocoder {
@@ -88,9 +86,56 @@ button {
 .mapboxgl-popup-close-button {
     position: absolute;
     left: -28px;
-    top: -10px;
+    top: -15px;
     border: none;
     border-radius: 0 3px 0 0;
     cursor: pointer;
     background-color: rgba(0,0,0,0);
+}
+
+#nydiv{
+    position: absolute;
+    z-index: 1;
+}
+#nygeocoder{
+    position:absolute;
+    z-index:1;
+    width:500px;
+    left:35%;
+
+    top:45px;
+}
+.item {
+    background-color: #fff;
+    border-radius: 0 0 3px 3px;
+    left: 0;
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+    width: 100%;
+    top: 120%;
+    z-index: 1000;
+    overflow: hidden;
+    font: 15px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+.listings{
+    height:400px;
+    overflow-y: auto;
+    width:100%;
+    overflow-x: hidden;
+    display:none;
+}
+
+.nygeocoder input[type='text'] {
+    width:70%;
+    font-size: 12px;
+    border: 0;
+    height: 20px;
+    margin:10px 0 0 0;
+    color: rgba(0,0,0,.5);
+    padding: 10px 10px 10px 40px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
