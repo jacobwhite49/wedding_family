@@ -1,18 +1,20 @@
 body { margin:0; padding:0; }
-#map { position:absolute; top:0; bottom:0; width:100%; }
+/*#map { position:absolute; top:0; bottom:0; width:100%; }*/
 
-
+#tablepanel{ position:absolute; top:80px; bottom:0; width:40%; right:0; }
+#map { position: absolute; top:0; bottom:0; width:60%; left:0; }
 
 .geocoder {
     position:absolute;
     z-index:1;
     width:60%;
     left:35%;
-    /* margin-left:-15%; */
     top:10px;
 }
-
-/* .mapboxgl-ctrl-geocoder { min-width:100%; } */
+.mapboxgl-ctrl-top-right {
+    top: 80%;
+    right: 0;
+}
 
 .mapboxgl-ctrl-geocoder {
     font: 15px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
