@@ -1,9 +1,11 @@
 body { margin:0; padding:0; }
 /*#map { position:absolute; top:0; bottom:0; width:100%; }*/
 
-#tablepanel{ position:absolute; top:80px; bottom:0; width:40%; right:0; }
-#map { position: absolute; top:0; bottom:0; width:60%; left:0; }
-
+#tablepanel{ position:absolute; top:0px; bottom:0; width:40%; right:0; display:none; }
+#map { position: absolute; top:0; bottom:0; width:100%; left:0; }
+.geocodersdiv{
+    position: relative;
+}
 .geocoder {
     position:absolute;
     z-index:1;
@@ -99,14 +101,7 @@ button {
     position: absolute;
     z-index: 1;
 }
-#nygeocoder{
-    position:absolute;
-    z-index:1;
-    width:500px;
-    left:35%;
 
-    top:45px;
-}
 .item {
     background-color: #fff;
     border-radius: 0 0 3px 3px;
@@ -121,23 +116,24 @@ button {
     font: 15px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
     box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
 }
-.listings{
-    height:400px;
-    overflow-y: auto;
-    width:100%;
-    overflow-x: hidden;
-    display:none;
-}
+
 
 .nygeocoder input[type='text'] {
     width:70%;
-    font-size: 12px;
-    border: 0;
-    height: 20px;
+    font-size: 14px;
+    /*border: 1px;
+    borde*/r-color: grey
+    height: 30px;
     margin:10px 0 0 0;
     color: rgba(0,0,0,.5);
-    padding: 10px 10px 10px 40px;
+    /*padding: 10px 10px 10px 40px;*/
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+}
+#nygeocoder{
+    position:relative;
+    z-index:1;
+    width:500px;
+padding: 0px 0px 5px 10px
 }

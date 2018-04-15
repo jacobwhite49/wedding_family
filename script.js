@@ -365,6 +365,24 @@ function copyToClipboard(elementId) {
 
 }
 
+$('#showtable').click(function(e){
+    $('#map').width('60%')
+    $('#tablepanel').toggle();
+    $('.geocodersdiv').animate({
+        'left' : "-15%" //moves left
+        });
+
+});
+$('#hidetable').click(function(e){
+    $('#map').width('100%')
+    $('#tablepanel').toggle();
+    $('.geocodersdiv').animate({
+        'left' : "0%" //moves left
+        });
+
+})
+
+
 $('#street').keypress(function(e) {
     if (e.which == 13) { //Enter key pressed
         $('#streetbtn').click(); //Trigger search button click event
@@ -373,17 +391,14 @@ $('#street').keypress(function(e) {
 
 
 $("#streetbtn").click(function() {
-    $('#streetbtn').html('Hold ON YO!');
+ 
+    $('#streetbtn').html('Searching');
 
-    if ($('#listings').is(':visible')) {
-        // $('#listings').hide()
-        $('#listings').empty()
-
-        // $('#streetbtn').html('Search')
-
+    if ($('#table td').is(':visible')) {
+        dataArr=[];
     } else {
-        $('#listings').show();
-        // $('#streetbtn').html('Close')
+        console.log('not')
+
 
     }
 
@@ -393,7 +408,6 @@ $("#streetbtn").click(function() {
         url: 'http://nyapi.herokuapp.com/bbox/v1/{table}?address=' + street,
         success: function(result) {
             $('#streetbtn').html('Search');
-
             $.each(result, function(index, property) {
                 // console.log(JSON.stringify(property.address));
                 dataArr.push(property);
@@ -401,6 +415,7 @@ $("#streetbtn").click(function() {
 
             datatable = $("#table").DataTable({
                 data: dataArr,
+                destroy:true,
                 dataSrc: "",
                 columns: [{
                     data: "rank"
@@ -414,8 +429,8 @@ $("#streetbtn").click(function() {
                 // "select": true,
                 autoWidth: false,
                 //   sPaginationType: "full_numbers",
-                // scrollY: "50vh",
-                // scrollX: "100%",
+                scrollY: "70vh",
+                scrollX: "100%",
                 //   order:false,
                 //   scrollCollapse: true,
                 // "scrollCollapse": true,
@@ -470,7 +485,7 @@ $("#streetbtn").click(function() {
                 }
                 var coords = [currentFeature.lon, currentFeature.lat];
                 map.flyTo({
-                    center: [coords[0], coords[1]],
+                    center: [coords[0]+ 0.0013, coords[1]],
                     zoom: 16.5
                 });
                 map.addSource('single-points', {
