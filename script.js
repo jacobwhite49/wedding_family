@@ -1,4 +1,4 @@
-mapboxgl.accessToken = 'pk.eyJ1IjoiandoaXRlMDcwMiIsImEiOiJjamZ4MHhjMng0dXRrMnFudjQ5emI5a3I3In0.YSkfFwF8_LRPoyOum5SZdg';
+mapboxgl.accessToken = 'pk.eyJ1IjoiYnJhZGxleTIzODciLCJhIjoiY2pnMTk0ZTk2NmJzOTJxbnZpMjl1ZGsxbiJ9.L-BSY_VjUrkHL3ov0OciKQ';
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/satellite-streets-v9',
@@ -49,15 +49,13 @@ map.on('load', function() {
         "type": "circle",
         "paint": {
             "circle-radius": 12,
-            "circle-color": "gold"
+            "circle-color": "blue"
         }
     });
     geocoder.on('result', function(ev) {
         if (popup) {
             popup.remove()
         } //REMOVE ANY POPUPS ON MAP
-        console.log('geocode geometry', ev.result.geometry)
-        console.log('geocode ', ev.result)
 
         map.getSource('single-point').setData(ev.result.geometry);
     });
@@ -95,8 +93,8 @@ map.on('load', function() {
         "source-layer": "output",
         "minzoom": 16,
         'layout': {
-            'text-field': '{STREETNUM} {STREETNAME} {CITY} {STATE}',
-            'text-size': 15,
+            'text-field': '{STREETNUM} {STREETNAME} \n {CITY}',
+            'text-size': 13,
             "symbol-spacing": 500000,
             "text-font": ["Open Sans Regular"],
             "text-anchor": "center",
@@ -111,14 +109,14 @@ map.on('load', function() {
         "filter": ["==", "STATE", 'NY']
     });
 
-    map.addSource('nysam', {
+    map.addSource('nysam13', {
         type: "vector",
-        url: 'mapbox://jnb2387.7pk1um63'
+        url: 'mapbox://jnb2387.af6mtbd9'
     });
     map.addLayer({
         'id': 'nysam',
         'type': 'circle',
-        'source': 'nysam',
+        'source': 'nysam13',
         'source-layer': 'ny_ogr',
         'paint': {
             // make circles larger as the user zooms from z12 to z22
@@ -126,22 +124,23 @@ map.on('load', function() {
                 'base': 1,
                 'stops': [
                     [13, 1],
+                    [14, 2],
                     [22, 8]
                 ]
             },
-            'circle-color': 'red'
+            'circle-color': 'blue'
         }
     }, 'place-suburb');
 
     map.addLayer({
-        'id': 'nysamlabel',
+        'id': 'nysam13label',
         'type': 'symbol',
-        'source': 'nysam',
+        'source': 'nysam13',
         "source-layer": "ny_ogr",
         "minzoom": 16,
         'layout': {
-            'text-field': '{addresslabel}, {citytownname}',
-            'text-size': 15,
+            'text-field': '{addresslabel}, \n {citytownname}',
+            'text-size': 13,
             "symbol-spacing": 500000,
             "text-font": ["Open Sans Regular"],
             "text-anchor": "center",
@@ -149,7 +148,7 @@ map.on('load', function() {
 
         },
         'paint': {
-            'text-color': 'lightgrey',
+            'text-color': 'white',
             'text-halo-color': 'black',
             'text-halo-width': 1
         }
@@ -262,7 +261,7 @@ map.on('load', function() {
 
             popup = new mapboxgl.Popup()
                 .setLngLat(e.lngLat)
-                .setHTML(e.lngLat.lng + " <button id='lng'>Copy</button><br>" + e.lngLat.lat + " <button id='lat'>Copy</button>") //+"<br>"+e.lngLat.lat +" <button id='lat' onclick="+copyToClipboard(e.lngLat.lat)+">Copy</button>") 
+                .setHTML(e.lngLat.lng + " <button id='lng' class='copybtn'>Copy</button><br>" + e.lngLat.lat + " <button class='copybtn' id='lat'>Copy</button>") //+"<br>"+e.lngLat.lat +" <button id='lat' onclick="+copyToClipboard(e.lngLat.lat)+">Copy</button>") 
                 .addTo(map);
             $(document).on('click', '#lng', function() {
                 $('#lat').html("Copy");
@@ -367,18 +366,18 @@ function copyToClipboard(elementId) {
 
 $('#showtable').click(function(e){
     $('#map').width('60%')
-    $('#tablepanel').toggle();
+    $('#tablepanel').show();
     $('.geocodersdiv').animate({
-        'left' : "-15%" //moves left
-        });
+        'left': "-15%" //moves left
+    });
 
 });
-$('#hidetable').click(function(e){
+$('#hidetable').click(function(e) {
     $('#map').width('100%')
-    $('#tablepanel').toggle();
+    $('#tablepanel').hide();
     $('.geocodersdiv').animate({
-        'left' : "0%" //moves left
-        });
+        'left': "0%" //moves left
+    });
 
 })
 
@@ -391,50 +390,35 @@ $('#street').keypress(function(e) {
 
 
 $("#streetbtn").click(function() {
- 
     $('#streetbtn').html('Searching');
-
     if ($('#table td').is(':visible')) {
-        dataArr=[];
-    } else {
-        console.log('not')
-
-
+        dataArr = [];
     }
-
     var street = document.getElementById('street').value;
-
     $.ajax({
         url: 'http://nyapi.herokuapp.com/bbox/v1/{table}?address=' + street,
         success: function(result) {
-            $('#streetbtn').html('Search');
+            $('#streetbtn').html('Find Street Names');
             $.each(result, function(index, property) {
-                // console.log(JSON.stringify(property.address));
                 dataArr.push(property);
             });
 
             datatable = $("#table").DataTable({
                 data: dataArr,
-                destroy:true,
+                destroy: true,
                 dataSrc: "",
                 columns: [{
-                    data: "rank"
-                }, {
                     data: "address"
                 }, {
                     data: "lon"
                 }, {
                     data: "lat"
                 }],
-                // "select": true,
+                "select": true,
                 autoWidth: false,
-                //   sPaginationType: "full_numbers",
-                scrollY: "70vh",
+                scrollY: "75vh",
                 scrollX: "100%",
-                //   order:false,
-                //   scrollCollapse: true,
-                // "scrollCollapse": true,
-                // "jQueryUI": true,
+                "jQueryUI": true,
                 search: {
                     caseInsensitive: true
                 },
@@ -442,6 +426,7 @@ $("#streetbtn").click(function() {
                 info: true,
                 lengthMenu: [10, 20, 50, 100]
             });
+
             $('#table tbody').on('click', 'tr', function() {
                 console.log(this);
                 var clickedaddress = [];
@@ -452,9 +437,8 @@ $("#streetbtn").click(function() {
                     $('tr.selected').removeClass('selected');
                     $(this).addClass('selected');
                     var ids = $.map(datatable.rows('.selected').data(), function(item) {
-                        console.log(item);
-                        var coords = [item.lon,item.lat];
-                        flyToStore(item);
+                        var coords = [item.lon, item.lat]; //set the coords to the lon and lat field of the clicked row.
+                        flyToStore(item); //Run the flyToStore functions with the clicked item properties
 
                     });
 
@@ -462,30 +446,16 @@ $("#streetbtn").click(function() {
             });
 
 
-            function createPopUp(currentFeature) {
-                var popUps = document.getElementsByClassName('mapboxgl-popup');
-                // Check if there is already a popup on the map and if so, remove it
-                if (popUps[0]) popUps[0].remove();
-                var coords = [currentFeature.lon, currentFeature.lat];
-                console.log(coords);
-                var popup = new mapboxgl.Popup({
-                        closeOnClick: false
-                    })
-                    .setLngLat(coords)
-                    .setHTML('<h3>Clicked Address</h3>' +
-                        '<h4>' + currentFeature.address + '</h4>')
-                    .addTo(map);
-            }
 
+            //When the row is clicked from the datatable flyto function and point is added based off the lon and lat of the clicked row
             function flyToStore(currentFeature) {
                 if (map.getSource('single-points')) {
                     map.removeLayer('geocodepoints');
                     map.removeSource('single-points');
-                    console.log('removed')
                 }
                 var coords = [currentFeature.lon, currentFeature.lat];
                 map.flyTo({
-                    center: [coords[0]+ 0.0013, coords[1]],
+                    center: [coords[0] + 0.0013, coords[1]], //Move the center of the fly to 0.0013 degrees to the west to center in half screen
                     zoom: 16.5
                 });
                 map.addSource('single-points', {
@@ -500,62 +470,16 @@ $("#streetbtn").click(function() {
                     "source": "single-points",
                     "type": "circle",
                     "paint": {
-                        "circle-radius": 8,
-                        "circle-color": "blue"
+                        "circle-radius": 10,
+                        "circle-color": "red"
                     }
-                }, 'NY_Addresses');
+                }, 'NY_Addresses_label');
                 var nypoint = {
                     "type": "Point",
                     "coordinates": coords
                 };
                 map.getSource('single-points').setData(nypoint);
             }
-
-
-
-            // function buildLocationList(data) {
-
-            //     // Iterate through the list of stores
-            //     for (i = 0; i < result.length; i++) {
-            //         var currentFeature = data[i];
-            //         // Shorten data.feature.properties to just `prop` so we're not
-            //         // writing this long form over and over again.
-            //         var prop = currentFeature;
-            //         // Select the listing container in the HTML and append a div
-            //         // with the class 'item' for each store
-            //         var listings = document.getElementById('listings');
-            //         var listing = listings.appendChild(document.createElement('div'));
-            //         listing.className = 'item';
-            //         listing.id = 'listing-' + i;
-
-            //         // Create a new link with the class 'title' for each store
-            //         // and fill it with the store address
-            //         var link = listing.appendChild(document.createElement('a'));
-            //         link.href = '#';
-            //         link.className = 'title';
-            //         link.dataPosition = i;
-            //         link.innerHTML = prop.address;
-
-            //         // Create a new div with the class 'details' for each store
-            //         // and fill it with the city and phone number
-
-            //         link.addEventListener('click', function(e) {
-            //             $('#listings').hide();
-            //             // Update the currentFeature to the store associated with the clicked link
-            //             var clickedListing = data[this.dataPosition];
-            //             console.log(clickedListing)
-            //                 // 1. Fly to the point associated with the clicked link
-            //             flyToStore(clickedListing);
-            //             createPopUp(clickedListing);
-
-            //         })
-            //     }
-            // }
-            // // Add an event listener for the links in the sidebar listing
-
-            // buildLocationList(result)
-
-
         }
     });
 });

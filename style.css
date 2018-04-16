@@ -1,7 +1,7 @@
 body { margin:0; padding:0; }
 /*#map { position:absolute; top:0; bottom:0; width:100%; }*/
 
-#tablepanel{ position:absolute; top:0px; bottom:0; width:40%; right:0; display:none; }
+#tablepanel{ position:absolute; top:0px; bottom:0; width:40%; right:0; display:none; padding :3px; }
 #map { position: absolute; top:0; bottom:0; width:100%; left:0; }
 .geocodersdiv{
     position: relative;
@@ -13,16 +13,13 @@ body { margin:0; padding:0; }
     left:35%;
     top:10px;
 }
-.mapboxgl-ctrl-top-right {
-    top: 80%;
-    right: 0;
-}
+
 
 .mapboxgl-ctrl-geocoder {
     font: 15px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
     position: relative;
     background-color: white;
-    width: 65.3333%;
+    width: 50.3333%;
     min-width: 240px;
     max-width: 488px;
     z-index: 1;
@@ -75,9 +72,9 @@ body { margin:0; padding:0; }
         background: #3074a4;
     }
 
-button {
-    height: 35px;
-    width: 70px;
+#showtable {
+    height: 25px;
+    width: 100px;
     border-radius: 8px;
     padding: 0px;
     font-size: 15px;
@@ -86,7 +83,38 @@ button {
     margin:5px;
     background-color: rgb(193, 184, 166);
 }
+#hidetable {
+    height: 25px;
+    width: 48px;
+    border-radius: 8px;
+    padding: 0px;
+    font-size: 15px;
+    font-family: 'Oswald', sans-serif;
+    cursor: pointer;
+    /*margin:5px;*/
+    background-color: rgb(193, 184, 166);
+}
+.copybtn {
+    height: 25px;
+    width: 48px;
+    border-radius: 8px;
+    padding: 0px;
+    font-size: 15px;
+    font-family: 'Oswald', sans-serif;
+    cursor: pointer;
+    /*margin:5px;*/
+    background-color: rgb(193, 184, 166);
+}
+#streetbtn{
+    width:30%;
+        font-size: 14px;
+         font-size: 15px;
+    font-family: 'Oswald', sans-serif;
+    cursor: pointer;
+    /*margin:5px;*/
+    background-color: rgb(193, 184, 166);
 
+}
 .mapboxgl-popup-close-button {
     position: absolute;
     left: -28px;
