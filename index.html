@@ -61,27 +61,37 @@ section:last-child {
 <div id='features'>
     <section id='welcome' class='active'>
         <h3>Colorado Points of Interest Map</h3>
-        <p>Welcome to Colorado! We know your time in Colorado may be limited, but here are a few highlights of our great state. <br><br>We hope you enjoy our great state and maximize your time while you are here. First we'll show you all the important points of intrest for our special day!</p>
+        <p>Welcome to Colorado! We know your time in Colorado may be limited, but here are a few highlights of our state. <br><br>We hope you enjoy our great state and maximize your time while you are here. First we'll show you all the important points of interest for our special day, along with some fun attractions Colorado has to offer in the area! This map is used for general spatial refrence, formal invitations outlining the details each wedding event will be sent in mid June.</p>
     </section>
-    <section id='Travel Arrangments' class='active'>
-        <h3>Travel Arrangments</h3>
-        <p>Traveling anywhere can be taxing, but luckly Colorado has many great airports to choose from for out out of town guests. While Colorado Springs Airport (COS), is the closest airport to the wedding venue flights from Denver International (DIA) are usually cheaper and offer more direct flights.
+    <section id='Travel Arrangements' class='active'>
+        <h3>Travel Arrangements</h3>
+        <p>Traveling anywhere can be taxing, but luckily Colorado has many great airports to choose from for our out of town guests. While Colorado Springs Airport (COS), is the closest airport to the wedding venue, flights from Denver International Airport (DIA) are usually cheaper and offer more direct flights.
     </section>
     <section id='Wedding Venue'>
         <h3>Wedding Venue</h3>
         <p>We are very excited to spend our special day with you!! Our cermony and reception are at this location. <img  width="400" height="400" src="images/wedding.jpg"><br><br></p>
     </section>
-    <section id='Rehersal Dinner'>
-        <h3>Rehersal Dinner</h3>
-        <p>Our rehersal dinner will be taking place at Bass Pro Shops in Colorado Springs. The rehersal dinner is causual attire, and food is buffet style. Guests can relax the night before the wedding while browsing the inside of the store or enjoy a ocean theme bar and bowling alley. <br><br> <img class='rotate90' width="400" height="400" src="images/jacob.jpg"><br><br></p>
+    <section id='Rehaersal Dinner'>
+        <h3>Rehaersal Dinner</h3>
+        <p>Our rehaersal dinner will be taking place at Bass Pro Shops in Colorado Springs. The rehersal dinner is causual attire, and food is buffet style. Invited guests can relax the night before the wedding while browsing the inside of the store or enjoy a ocean theme bar and bowling alley. <br><br> <img class='rotate90' width="400" height="400" src="images/jacob.jpg"><br><br></p>
     </section>
     <section id='Hotel Accommondations'>
         <h3>Hotel Accommondations</h3>
-        <p>My Place Hotel
+        <p>Don't worry about the fact there is no hotel in this aerial view, because the hotel was finished being built in May and google has not updated their imagery yet. 
+         <br><br></p>
+            My Place Hotel
 369 Gleneagle Dr, Gleneagle, CO 80921
          </section>
+
+         <section id='Groomsman Air BnB'>
+        <h3>Groomsman Air BnB</h3>
+        <p>Jacob's best man was nice enough to book a six bedroom air bnb for the groomsan and their wives. The air bnb is booked through August 16th - 19th.<br><br></p>
+    </section>
     <section id='Garden of the Gods'>
         <h3>Garden of the Gods</h3>
+        Now that we've gotten through all the important locations of our wedding, here are some of the atttractions Colorado has to offer.
+        <br><br></p>
+        Garden of the Gods is a very popular tourist destination in Colorado Springs, and offers a unique experience only Colorado can offer.
         <p><br><br><iframe width="560" height="315" src="https://www.youtube.com/embed/3fkyHnXWZqI" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe> </p>
     </section>
     <section id='Cheyenne Mountain Zoo'>
@@ -90,7 +100,10 @@ section:last-child {
     </section>
     <section id='Pikes Peak'>
         <h3>Pikes Peak</h3>
-        <p>Have fun!<br><br> <img  width="400" height="400" src="images/pikes.jpg"><br><br></p>
+        Pikes Peak can be a fun drive up one of America's 14,000 foot tall peaks.
+        <p>We hope you enjoyed our map of Colorado and we thank you for being apart of our special day.
+            <br><br></p>
+         Have fun!<br><br> <img  width="400" height="400" src="images/pikes.jpg"><br><br></p>
     </section>
 </div>
 <script>
@@ -98,26 +111,25 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiandoaXRlMDcwMiIsImEiOiJjajdzN24xdGQydnQzMndyc
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/jwhite0702/cjhb1wdee04w42smjgk8usqrh',
-        bearing: -0,
+        bearing: 0,
         center: [-105.184728, 39.183626],
         zoom: 6.38,
         speed: 1.5,
         pitch: 0,
         hash:true
 });
-
 var chapters = {
     'welcome': {
-        bearing: -0,
-        center: [-108.866174, 49.272291],
-        zoom: 2,
+        bearing: 0,
+        center: [-105.979, 39.08],
+        zoom: 5.00,
         speed: 1.5,
         pitch: 0
     },
-    'Travel Arrangments': {
+    'Travel Arrangements': {
         bearing: 0,
-        center: [-105.075848, 39.312615],
-        zoom: 8.53,
+        center: [-103.850405, 39.126442],
+        zoom: 6.63,
         pitch: 0
     },
     'Wedding Venue': {
@@ -127,7 +139,7 @@ var chapters = {
         speed: 1.5,
         pitch: 0
     },
-    'Rehersal Dinner': {
+    'Rehaersal Dinner': {
         bearing: 0,
         center: [-104.827040, 39.023734],
         zoom: 17.80,
@@ -138,6 +150,13 @@ var chapters = {
         bearing: 0,
         center: [-104.831377, 39.030054],
         zoom: 17.86,
+        speed: 1.5,
+        pitch: 0
+    },
+    'Groomsman Air BnB': {
+        bearing: 0,
+        center: [-104.833201, 39.036505],
+        zoom: 18.53,
         speed: 1.5,
         pitch: 0
     },
@@ -187,7 +206,6 @@ function isElementOnScreen(id) {
     var bounds = element.getBoundingClientRect();
     return bounds.top < window.innerHeight && bounds.bottom > 150;
 }
-
 map.on('load',function(){
     map.addControl(new MapboxGeocoder({
         accessToken: mapboxgl.accessToken
@@ -253,7 +271,6 @@ map.on('load',function(){
         'minzoom': 15,
         'paint': {
             'fill-extrusion-color': '#aaa',
-
             // use an 'interpolate' expression to add a smooth transition effect to the
             // buildings as the user zooms in
             'fill-extrusion-height': [
