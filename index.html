@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+	<html>
+	<head>
+	    <meta charset='utf-8' />
+	    <title></title>
+	    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+	    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
+	    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
+	    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.1.1/mapbox-gl-geocoder.min.js'></script>
+	    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.1.1/mapbox-gl-geocoder.css' type='text/css' />
+	        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	    <style>
+	       
+	       
+	    </style>
+	</head>
+	<body>
+	
+
+	<style>
+	@media (max-width: 767px) {
+	    #map {
+	        position: absolute;
+	        width:100%;
+	        left:0;
+	        bottom:30%
+	    }
+
+	    #features{
+	        position: absolute;        
+	        width:100%;
+	        bottom:0;
+	        top:70%;
+	        margin-left:0;
+	    }
+	    section{
+	        bottom:0;
+	        top:70%;
+	        margin-left:0;
+	    }
+	}
+ .map {
+    position: fixed;
+    top:0; bottom:0;
+    width:50%;
+}
+.features {
+    width: 50%;
+    margin-left: 50%;
+    font-family: Tw Cen MT;
+    overflow-y: scroll;
+    background-color: #fafafa;
+}
+ body { margin:0; padding:0; }
+
+	section {
+	    padding:  25px 50px;
+	    line-height: 25px;
+	    border-bottom: 1px solid #ddd;
+	    opacity: 0.25;
+	    font-size: 20px;
+	}
+	section.active {
+	    opacity: 1;
+	}
+	section:last-child {
+	    border-bottom: none;
+	    margin-bottom: 1000px;
+	}
+	.rotate90 {
+	    -webkit-transform: rotate(90deg);
+	    -moz-transform: rotate(90deg);
+	    -o-transform: rotate(90deg);
+	    -ms-transform: rotate(90deg);
+	    transform: rotate(90deg);
+	}
+	/* for the 3D control button on the map */
+	.mapboxgl-ctrl-pitchtoggle-3d {
+	  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCI+ICAgIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjM1ZW0iIHN0eWxlPSJmb250LXNpemU6IDE0cHg7IGZvbnQtZmFtaWx5OiAnSGVsdmV0aWNhIE5ldWUnLEFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmOyBmb250LXdlaWdodDogYm9sZDsgdGV4dC1hbmNob3I6IG1pZGRsZTsiPjNEPC90ZXh0Pjwvc3ZnPg==);
+	}
+	.mapboxgl-ctrl-pitchtoggle-2d {
+	  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCI+ICAgIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjM1ZW0iIHN0eWxlPSJmb250LXNpemU6IDE0cHg7IGZvbnQtZmFtaWx5OiAnSGVsdmV0aWNhIE5ldWUnLEFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmOyBmb250LXdlaWdodDogYm9sZDsgdGV4dC1hbmNob3I6IG1pZGRsZTsiPjJEPC90ZXh0Pjwvc3ZnPg==);
+	}
+	</style>
+	
+
+	<div id='map' class='map'></div>
+	<div id='features' class='features'>
+	    <section id='welcome' class='active'>
+	        <h3>Colorado Points of Interest Map</h3>
+	        <p>Welcome to Colorado! We know your time in Colorado may be limited, but here are a few highlights of our state. <br><br>We hope you enjoy our great state and maximize your time while you are here. First we'll show you all the important points of interest for our special day, along with some fun attractions Colorado has to offer in the area! This map is used for general spatial reference, formal invitations outlining the details each wedding event will be sent in mid-June.</p>
+	    </section>
+	    <section id='Travel Arrangements' class='active'>
+	        <h3>Travel Arrangements</h3>
+	        <p>Traveling anywhere can be taxing, but luckily Colorado has many great airports to choose from for our out of town guests. While Colorado Springs Airport (COS), is the closest airport to the wedding venue, flights from Denver International Airport (DIA) are usually cheaper and offer more direct flights.
+	    </section>
+	    <section id='Wedding Venue'>
+	        <h3>Wedding Venue</h3>
+	        <p>We are very excited to spend our special day with you!! Our ceremony and reception are at this location. <br><br></p> <img  width="400" height="400" src="images/wedding.jpg"><br><br></p>
+	    </section>
+	    <section id='Rehearsal Dinner'>
+	        <h3>Rehearsal Dinner</h3>
+	        <p>Our rehearsal dinner will be taking place at Bass Pro Shops in Colorado Springs. The rehearsal dinner is casual attire, and food is buffet style. Invited guests can relax the night before the wedding while browsing the inside of the store or enjoy an ocean theme bar and bowling alley. <br><br> <img class='rotate90' width="400" height="400" src="images/jacob.jpg"><br><br></p>
+	    </section>
+	    <section id='Hotel Accommodations'>
+	        <h3>Hotel Accommodations</h3>
+	        <p>Don't worry about the fact there is no hotel in this aerial view, because the hotel was finished being built in May and google has not updated their imagery yet. 
+	         <br><br></p>
+	            My Place Hotel
+	369 Gleneagle Dr, Gleneagle, CO 80921
+	         </section>
+	         <section id='Groomsman Air BnB'>
+	        <h3>Groomsman Air BnB</h3>
+	        <p>Jacob's best man was nice enough to book a six bedroom air bnb for the groomsman and their wives. The air bnb is booked through August 16th - 19th.<br><br></p>
+	        </section>
+	    <section id='Restaurants in Area'> 
+	        <h3>Restaurants in Area</h3>
+	        Here are a few restaurants in the area that you can enjoy during your free time in Colorado.
+	        <br><br></p>
+	        C.B. Potts is one of Jacob's favorite restaurants; CB Potts is a Colorado chain that serves American cuisine.
+	        <br><br></p>
+	        Mod pizza is great fast food pizza restaurant that serves pizza Subway style, where each patron can customize their personal pizza.
+	        <br><br></p>
+	    </section>
+	    <section id='Restaurants Cont'> 
+	        <h3>Restaurants Cont</h3>
+	        Texas Roadhouse serves American cuisine, and is known for its steak and fresh rolls.
+	        <br><br></p>
+	        Chili's is a tex-mex themed restaurant. 
+	        <br><br></p>
+	        Freddy's is fast food restaurant known for their burgers and frozen custard.
+	    </section>
+	    <section id='Garden of the Gods'>
+	        <h3>Garden of the Gods</h3>
+	        Now that we've gotten through all the important locations of our wedding, here are some of the attractions Colorado has to offer.
+	        <br><br></p>
+	        Garden of the Gods is a very popular tourist destination in Colorado Springs, and offers a unique experience only Colorado can offer.
+	        <p><br><br><iframe width="560" height="315" src="https://www.youtube.com/embed/3fkyHnXWZqI" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe> </p>
+	    </section>
+	    <section id='Cheyenne Mountain Zoo'>
+	        <h3>Cheyenne Mountain Zoo</h3>
+	        <p>Cheyenne is America's only zoo that is built in the side of a mountain. If you love visiting zoos, and you are looking for a unique experience Cheyenne Mountain Zoo does not disappoint.</p><br><br> <img class='rotate90' width="400" height="400" src="images/zoo.JPG"><br><br></p>
+	    </section>
+	    <section id='Pikes Peak'>
+	        <h3>Pikes Peak</h3>
+	        Pikes Peak can be a fun drive up one of America's 14,000 foot tall peaks.
+	        <p>We hope you enjoyed our map of Colorado and we thank you for being a part of our special day.
+	            <br><br></p>
+	         Have fun!<br><br> <img  width="400" height="400" src="images/pikes.jpg"><br><br></p>
+	    </section>
+	</div>
+	<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoiandoaXRlMDcwMiIsImEiOiJjajdzN24xdGQydnQzMndycjlsdjJxOGZqIn0.FsF3d2oHSqUPHef3kT8Qlw'; 
+	var map = new mapboxgl.Map({
+	    container: 'map',
+	    style: 'mapbox://styles/jwhite0702/cjhb1wdee04w42smjgk8usqrh',
+	        bearing: 0,
+	        center: [-105.184728, 39.183626],
+	        zoom: 6.38,
+	        speed: 1.5,
+	        pitch: 0,
+	        hash:true
+	});
+	var chapters = {
+	    'welcome': {
+	        bearing: 0,
+	        center: [-105.979, 39.08],
+	        zoom: 5.00,
+	        speed: 1.5,
+	        pitch: 0
+	    },
+	    'Travel Arrangements': {
+	        bearing: 0,
+	        center: [-103.850405, 39.126442],
+	        zoom: 6.63,
+	        pitch: 0
+	    },
+	    'Wedding Venue': {
+	        center: [-104.699400, 39.011005],
+	        bearing: 0,
+	        zoom: 18.08,
+	        speed: 1.5,
+	        pitch: 0
+	    },
+	    'Rehearsal Dinner': {
+	        bearing: 0,
+	        center: [-104.827040, 39.023734],
+	        zoom: 17.80,
+	        speed:1.5,
+	        pitch: 0
+	    },
+	    'Hotel Accommodations': {
+	        bearing: 0,
+	        center: [-104.831377, 39.030054],
+	        zoom: 17.86,
+	        speed: 1.5,
+	        pitch: 0
+	    },
+	    'Groomsman Air BnB': {
+	        bearing: 0,
+	        center: [-104.833201, 39.036505],
+	        zoom: 18.53,
+	        speed: 1.5,
+	        pitch: 0
+	    },
+	    'Restaurants in Area': {
+	        bearing: 0,
+	        center: [-104.822712, 39.024187],
+	        zoom: 15.30,
+	        speed: 1.5,
+	        pitch: 0
+	    },
+	    'Restaurants Cont': {
+	        bearing: 0,
+	        center: [-104.852457, 39.065139], 
+	        zoom: 15.11,
+	        speed: 1.5,
+	        pitch: 0
+	    },
+	    'Garden of the Gods': {
+	        bearing: 0,
+	        center: [-104.878637, 38.875855],
+	        zoom: 15.11,
+	        pitch: 0,
+	        speed: 1.5
+	    },
+	    'Cheyenne Mountain Zoo': {
+	        bearing: 0,
+	        center: [-104.855016, 38.770490],
+	        zoom: 16.32,
+	        pitch: 0,
+	        speed: 1.5
+	    },
+	    'Pikes Peak': {
+	        bearing: 0,
+	        center: [-105.080968, 38.830122],
+	        zoom: 16.44,
+	        speed: 1.5,
+	        pitch: 0
+	    },
+	};
+	$(".features").on('scroll', onScroll); // for mobile
+$(window).on('scroll', onScroll);
+// On every scroll event, check which element is on screen
+function onScroll() {
+    var chapterNames = Object.keys(chapters);
+    for (var i = 0; i < chapterNames.length; i++) {
+        var chapterName = chapterNames[i];
+        if (isElementOnScreen(chapterName)) {
+            setActiveChapter(chapterName);
+            break;
+        }
+    }
+};
+
+	// window.onscroll = function() {
+	//     var chapterNames = Object.keys(chapters);
+	//     for (var i = 0; i < chapterNames.length; i++) {
+	//         var chapterName = chapterNames[i];
+	//         if (isElementOnScreen(chapterName)) {
+	//             setActiveChapter(chapterName);
+	//             break;
+	//         }
+	//     }
+	// };
+	var activeChapterName = 'welcome';
+	function setActiveChapter(chapterName) {
+	    if (chapterName === activeChapterName) return;
+	    map.flyTo(chapters[chapterName]);
+	    document.getElementById(chapterName).setAttribute('class', 'active');
+	    document.getElementById(activeChapterName).setAttribute('class', '');
+	    activeChapterName = chapterName;
+	}
+	function isElementOnScreen(id) {
+	    var element = document.getElementById(id);
+	    var bounds = element.getBoundingClientRect();
+	        if(window.innerWidth < 800 ){return bounds.top < window.innerHeight && bounds.bottom > 600}
+
+	    return bounds.top < window.innerHeight && bounds.bottom > 150;
+	}
+	map.on('load',function(){
+	    map.addControl(new MapboxGeocoder({
+	        accessToken: mapboxgl.accessToken
+	    }));
+	    // Add the zoom and viewpoint to the map
+	    var nav = new mapboxgl.NavigationControl();
+	    map.addControl(nav, 'top-right');
+	    map.addControl(new mapboxgl.GeolocateControl({
+	    positionOptions: {
+	        enableHighAccuracy: true
+	    },
+	    trackUserLocation: true
+	    }));
+	//for the 3D button toggle
+	    class PitchToggle { //create a class that has the pitch and bearing
+	        constructor({ bearing = 0, pitch = 60, minpitchzoom = null }) {
+	            this._bearing = bearing;
+	            this._pitch = pitch;
+	            this._minpitchzoom = minpitchzoom;
+	        }
+	        onAdd(map) {
+	            this._map = map;
+	            let _this = this;
+	            this._btn = document.createElement('button');// create the 3d button
+	            this._btn.className = 'mapboxgl-ctrl-icon mapboxgl-ctrl-pitchtoggle-3d';// set the class name for css styling
+	            this._btn.type = 'button';
+	            this._btn['aria-label'] = 'Toggle Pitch';//not sure
+	            this._btn.onclick = function () { //when the button is clicked
+	                if (map.getPitch() === 0) {// if the pitch is 0 then run this
+	                    let options = { pitch: _this._pitch, bearing: _this._bearing };// grab the pitch & bearing from the class constructor 
+	                    // if (_this._minpitchzoom && map.getZoom() > _this._minpitchzoom) {//dont really need
+	                    //     options.zoom = _this._minpitchzoom;
+	                    // }
+	                    map.easeTo(options);
+	                    _this._btn.className = 'mapboxgl-ctrl-icon mapboxgl-ctrl-pitchtoggle-2d';//change button to show 2d after change
+	                } else {
+	                    map.easeTo({ pitch: 0, bearing: 0 });// reset back to 2D if the pitch is not 0
+	                    _this._btn.className = 'mapboxgl-ctrl-icon mapboxgl-ctrl-pitchtoggle-3d';//change button to show 3d after change
+	                }
+	            };
+	            this._container = document.createElement('div');// create a div
+	            this._container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
+	            this._container.appendChild(this._btn);
+	            return this._container;
+	        }
+	        onRemove() {
+	            this._container.parentNode.removeChild(this._container);
+	            this._map = undefined;
+	        }
+	    }
+	    //add the new class or 3D button to the map.
+	    map.addControl(new PitchToggle({ minpitchzoom: 11 }));
+	    map.on('click',function(e){
+	        var features = map.queryRenderedFeatures(e.point)  
+	        console.log(features)
+	    })
+	    map.addLayer({
+	        'id': '3d-buildings',
+	        'source': 'composite',
+	        'source-layer': 'building',
+	        'filter': ['==', 'extrude', 'true'],
+	        'type': 'fill-extrusion',
+	        'minzoom': 15,
+	        'paint': {
+	            'fill-extrusion-color': '#aaa',
+	            // use an 'interpolate' expression to add a smooth transition effect to the
+	            // buildings as the user zooms in
+	            'fill-extrusion-height': [
+	                "interpolate", ["linear"], ["zoom"],
+	                15, 0,
+	                15.05, ["get", "height"]
+	            ],
+	            'fill-extrusion-base': [
+	                "interpolate", ["linear"], ["zoom"],
+	                15, 0,
+	                15.05, ["get", "min_height"]
+	            ],
+	            'fill-extrusion-opacity': .6
+	        }
+	    },'poi-scalerank3');
+	});
+	</script>
+	</body>
+	</html>
